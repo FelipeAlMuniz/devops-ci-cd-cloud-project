@@ -1,0 +1,144 @@
+name: ci-cd
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install backend dependencies
+        run: pip install -r app/requirements.txt
+
+      - name: Run backend tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -m unittest discover -s app/tests -q
+
+  frontend-checks:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+        working-directory: terraform
+
+      - name: Terraform init
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: Terraform validate
+        run: terraform validate
+        working-directory: terraform
+
+  deploy:
+    name: Build And Deploy
+    runs-on: ubuntu-latest
+    needs:
+      - backend-tests
+      - frontend-checks
+      - terraform-validate
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION || env.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform apply base infrastructure
+        run: terraform apply -auto-approve -var="container_image=public.ecr.aws/docker/library/nginx:stable"
+        working-directory: terraform
+
+      - name: Export ECR repository URL
+        id: terraform-output
+        run: |
+          echo "repository_url=$(terraform output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
+        working-directory: terraform
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag and push image
+        id: build-image
+        env:
+          ECR_REPOSITORY: ${{ steps.terraform-output.outputs.repository_url }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t "$ECR_REPOSITORY:$IMAGE_TAG" .
+          docker push "$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image_uri=$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Terraform deploy application image
+        run: terraform apply -auto-approve -var="container_image=${{ steps.build-image.outputs.image_uri }}"
+        working-directory: terraform
