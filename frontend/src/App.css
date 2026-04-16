@@ -40,12 +40,14 @@
 
 .hero-copy {
   padding: 48px;
+  animation: rise-in 800ms ease both;
 }
 
 .hero-copy::before,
 .hero-panel::before,
 .story-card::before,
-.task-card-shell::before {
+.task-card-shell::before,
+.architecture-shell::before {
   content: "";
   position: absolute;
   inset: auto -15% -25% auto;
@@ -120,7 +122,8 @@
 }
 
 .primary-action:hover,
-.secondary-action:hover {
+.secondary-action:hover,
+.task-input button:hover {
   transform: translateY(-2px);
 }
 
@@ -143,6 +146,25 @@
   color: var(--accent);
 }
 
+.stack-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.stack-strip span {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(58, 45, 35, 0.1);
+  color: var(--forest);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .hero-panel {
   display: flex;
   flex-direction: column;
@@ -150,6 +172,7 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 247, 238, 0.84)),
     linear-gradient(130deg, rgba(239, 215, 199, 0.9), rgba(255, 255, 255, 0));
+  animation: rise-in 900ms ease both;
 }
 
 .hero-panel h2 {
@@ -180,7 +203,8 @@
 }
 
 .metric-card span,
-.signal-bar span {
+.signal-bar span,
+.architecture-card span {
   color: var(--muted);
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -235,20 +259,25 @@
 .story-card,
 .task-card-shell {
   padding: 34px;
+  animation: rise-in 1000ms ease both;
 }
 
 .story-card h2,
-.task-header h2 {
+.task-header h2,
+.architecture-copy h2 {
   margin: 18px 0 10px;
   color: var(--ink);
-  font-size: 2rem;
-  line-height: 1.05;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
 }
 
 .story-card p,
 .task-header p,
 .empty-state,
-.task-item p {
+.task-item p,
+.architecture-copy p,
+.architecture-card p {
   color: var(--muted);
   line-height: 1.7;
 }
@@ -339,10 +368,6 @@
   box-shadow: 0 16px 28px rgba(201, 109, 66, 0.24);
 }
 
-.task-input button:hover {
-  transform: translateY(-2px);
-}
-
 .task-list {
   display: grid;
   gap: 14px;
@@ -371,14 +396,67 @@
   font-weight: 700;
 }
 
+.architecture-shell {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 28px;
+  margin-top: 28px;
+  padding: 34px;
+  border-radius: 30px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(255, 250, 244, 0.88), rgba(244, 235, 225, 0.86)),
+    radial-gradient(circle at top right, rgba(49, 75, 61, 0.12), transparent 34%);
+  box-shadow: var(--shadow);
+  animation: rise-in 1100ms ease both;
+}
+
+.architecture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.architecture-card {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(58, 45, 35, 0.08);
+}
+
+.architecture-card span {
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 980px) {
   .hero-grid,
-  .content-grid {
+  .content-grid,
+  .architecture-shell {
     grid-template-columns: 1fr;
   }
 
   .hero-copy h1 {
     max-width: 12ch;
+  }
+
+  .architecture-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -391,14 +469,16 @@
   .hero-copy,
   .hero-panel,
   .story-card,
-  .task-card-shell {
+  .task-card-shell,
+  .architecture-shell {
     border-radius: 24px;
   }
 
   .hero-copy,
   .story-card,
   .task-card-shell,
-  .hero-panel {
+  .hero-panel,
+  .architecture-shell {
     padding: 24px;
   }
 

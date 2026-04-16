@@ -13,6 +13,11 @@
 
 > Projeto pensado para GitHub e LinkedIn: uma aplicação containerizada com **Terraform + Docker + GitHub Actions + AWS ECS Fargate**, desenhada para demonstrar competências reais de Infraestrutura, Cloud e DevOps.
 
+<p align="center">
+  <a href="https://github.com/FelipeAlMuniz">GitHub</a> •
+  <a href="https://www.linkedin.com/in/felipe-alves-muniz">LinkedIn</a>
+</p>
+
 ## Visão Rápida
 
 | Destaque | Entrega |
@@ -32,6 +37,14 @@ Este repositório foi estruturado como um case de portfólio para mostrar uma jo
 - provisionamento de infraestrutura em AWS com Terraform
 - automação de pipeline CI/CD
 - publicação de um projeto com narrativa clara para recrutadores e times técnicos
+
+## Identidade Visual do Projeto
+
+Além da parte técnica, a apresentação foi tratada como parte do produto:
+
+- frontend com hero section, cards e narrativa visual mais premium
+- README com leitura mais escaneável para GitHub e LinkedIn
+- estrutura pensada para parecer um case publicado, não apenas um laboratório isolado
 
 ## Arquitetura
 
@@ -184,4 +197,12 @@ Este projeto foi desenhado para ser fácil de apresentar publicamente. Ele ajuda
 - incluir `terraform plan` automático em pull requests
 - adicionar alarmes com `CloudWatch`
 
+## Sugestão de Texto para LinkedIn
 
+```text
+Acabei de publicar um projeto de portfólio focado em Cloud e DevOps.
+
+Nele trabalhei com Terraform, GitHub Actions, Docker e AWS ECS Fargate para mostrar uma esteira completa, da Infraestrutura como Código ao deploy automatizado.
+
+O objetivo foi construir um case que representasse melhor meu momento profissional em infraestrutura, automação e cloud.
+```

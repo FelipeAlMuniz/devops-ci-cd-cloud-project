@@ -4,15 +4,23 @@ import "./App.css"
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000"
 
 const metrics = [
-  { label: "Infra modules", value: "07", detail: "VPC, ECR, ECS, ALB e mais" },
-  { label: "Pipeline stages", value: "06", detail: "Test, lint, build e deploy" },
-  { label: "Cloud focus", value: "AWS", detail: "Fargate, CloudWatch e OIDC" },
+  { label: "Infra modules", value: "07", detail: "VPC, ECR, ECS, ALB e observabilidade" },
+  { label: "Pipeline stages", value: "06", detail: "Test, lint, build, push e deploy" },
+  { label: "Cloud focus", value: "AWS", detail: "Fargate, CloudWatch, OIDC e ALB" },
 ]
 
 const highlights = [
   "Terraform para provisionamento de infraestrutura",
   "GitHub Actions com fluxo CI/CD completo",
   "Containers com Docker e deploy em ECS Fargate",
+]
+
+const stackItems = ["Terraform", "AWS", "GitHub Actions", "Docker", "Flask", "React"]
+
+const architectureNodes = [
+  { step: "01", label: "Code", text: "Aplicação versionada para frontend, backend e infra." },
+  { step: "02", label: "Pipeline", text: "Lint, testes, build e validação de Terraform." },
+  { step: "03", label: "Cloud", text: "Imagem no ECR e deploy automatizado no ECS Fargate." },
 ]
 
 function App() {
@@ -59,16 +67,17 @@ function App() {
       <section className="hero-grid">
         <div className="hero-copy">
           <span className="eyebrow">Cloud • DevOps • Infrastructure as Code</span>
-          <h1>Portfólio de Infraestrutura com design de produto e mentalidade de automação.</h1>
+          <h1>Portfólio de Infraestrutura com cara de produto e mentalidade de automação.</h1>
           <p className="hero-text">
-            Um dashboard pensado para apresentar competências em Terraform, CI/CD,
-            containers e AWS de forma mais visual, clara e publicável.
+            Uma interface criada para transformar um projeto técnico em uma peça
+            de portfólio mais memorável, com narrativa visual, stack bem exposta
+            e contexto claro para recrutadores e times de engenharia.
           </p>
 
           <div className="hero-actions">
             <a
               className="primary-action"
-              href="https://github.com/fepa11"
+              href="https://github.com/FelipeAlMuniz"
               target="_blank"
               rel="noreferrer"
             >
@@ -89,6 +98,12 @@ function App() {
               <li key={item}>{item}</li>
             ))}
           </ul>
+
+          <div className="stack-strip">
+            {stackItems.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
         </div>
 
         <aside className="hero-panel">
@@ -178,6 +193,28 @@ function App() {
             ))}
           </div>
         </article>
+      </section>
+
+      <section className="architecture-shell">
+        <div className="architecture-copy">
+          <span className="section-tag">Cloud Flow</span>
+          <h2>Uma esteira visual para reforçar a narrativa técnica do projeto.</h2>
+          <p>
+            Esta seção foi desenhada para dar mais impacto à apresentação do
+            stack, mostrando como código, pipeline e cloud se conectam de forma
+            simples e elegante.
+          </p>
+        </div>
+
+        <div className="architecture-grid">
+          {architectureNodes.map((node) => (
+            <article className="architecture-card" key={node.step}>
+              <span>{node.step}</span>
+              <h3>{node.label}</h3>
+              <p>{node.text}</p>
+            </article>
+          ))}
+        </div>
       </section>
     </main>
   )
