@@ -197,12 +197,3 @@ Este projeto foi desenhado para ser fácil de apresentar publicamente. Ele ajuda
 - incluir `terraform plan` automático em pull requests
 - adicionar alarmes com `CloudWatch`
 
-## Sugestão de Texto para LinkedIn
-
-```text
-Acabei de publicar um projeto de portfólio focado em Cloud e DevOps.
-
-Nele trabalhei com Terraform, GitHub Actions, Docker e AWS ECS Fargate para mostrar uma esteira completa, da Infraestrutura como Código ao deploy automatizado.
-
-O objetivo foi construir um case que representasse melhor meu momento profissional em infraestrutura, automação e cloud.
-```
