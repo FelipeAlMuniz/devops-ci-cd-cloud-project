@@ -198,6 +198,79 @@ Para ativar o deploy automático no GitHub Actions:
 - `AWS_ROLE_TO_ASSUME`
 - `AWS_REGION`
 
+## Configuração de AWS OIDC
+
+O deploy usa `aws-actions/configure-aws-credentials@v4` com OIDC. Se o workflow falhar com:
+
+```text
+Could not load credentials from any providers
+```
+
+normalmente significa que o secret `AWS_ROLE_TO_ASSUME` não existe no GitHub ou que a trust policy do role na AWS ainda não permite o repositório assumir o role.
+
+### 1. Criar o provider OIDC na AWS
+
+No IAM da AWS, crie o provider:
+
+- Provider URL: `https://token.actions.githubusercontent.com`
+- Audience: `sts.amazonaws.com`
+
+### 2. Criar o role usado pelo GitHub Actions
+
+Exemplo de trust policy para este repositório:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::<AWS_ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:FelipeAlMuniz/devops-ci-cd-cloud-project:*"
+        }
+      }
+    }
+  ]
+}
+```
+
+### 3. Permissões mínimas do role
+
+O role precisa conseguir operar os serviços usados pelo pipeline, como:
+
+- `ecr:*` ou permissões específicas de push/pull no Amazon ECR
+- `ecs:*` ou permissões específicas do ECS/Fargate
+- `elasticloadbalancing:*`
+- `logs:*`
+- `ec2:*` para componentes de rede criados pelo Terraform
+- `iam:*` apenas se o Terraform for criar roles/policies
+- `sts:GetCallerIdentity`
+
+Em ambiente real, o ideal é restringir isso por recurso e por ação.
+
+### 4. Configurar os secrets no GitHub
+
+Em `Settings > Secrets and variables > Actions`, configure:
+
+- `AWS_ROLE_TO_ASSUME`
+  Exemplo:
+  `arn:aws:iam::123456789012:role/github-actions-deploy-role`
+- `AWS_REGION`
+  Exemplo:
+  `us-east-1`
+
+### 5. O que o workflow agora valida
+
+O workflow em `.github/workflows/deploy.yml` faz uma checagem explícita antes do deploy. Se o secret `AWS_ROLE_TO_ASSUME` estiver vazio, ele falha com uma mensagem clara em vez de deixar o erro genérico do provider da AWS.
+
 ## Valor para GitHub e LinkedIn
 
 Este projeto foi desenhado para ser fácil de apresentar publicamente. Ele ajuda a comunicar:
