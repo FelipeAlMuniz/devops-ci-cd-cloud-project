@@ -3,10 +3,10 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="")
 CORS(app)
 
 
@@ -38,6 +38,11 @@ def init_db() -> None:
 
 @app.route("/")
 def index():
+    static_index = Path(app.static_folder or "") / "index.html"
+
+    if static_index.exists():
+        return send_from_directory(app.static_folder, "index.html")
+
     return render_template("index.html")
 
 

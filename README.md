@@ -160,7 +160,26 @@ npm run dev
 
 ```bash
 docker build -t devops-cloud-project .
-docker run -p 5000:5000 devops-cloud-project
+docker run -p 8080:5000 devops-cloud-project
+```
+
+### Docker Compose
+
+O Windows da sua máquina pode reservar a porta `5000`, então o `docker-compose.yml`
+usa por padrão a porta `8080` no host.
+
+```bash
+docker compose up --build
+```
+
+No container, o código da aplicação fica em `/app` e o banco SQLite fica persistido
+em `/data/tasks.db`.
+
+Se quiser trocar a porta externa:
+
+```bash
+$env:APP_PORT=8081
+docker compose up --build
 ```
 
 ## Variáveis de Exemplo do Terraform
@@ -196,4 +215,3 @@ Este projeto foi desenhado para ser fácil de apresentar publicamente. Ele ajuda
 - publicar o frontend em `S3 + CloudFront`
 - incluir `terraform plan` automático em pull requests
 - adicionar alarmes com `CloudWatch`
-

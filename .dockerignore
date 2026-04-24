@@ -1,0 +1,12 @@
+.git
+.github
+.vscode
+.terraform
+terraform
+frontend/node_modules
+frontend/dist
+__pycache__
+**/__pycache__
+*.pyc
+app/tests
+docs

@@ -1,27 +1,51 @@
 import { useEffect, useState } from "react"
 import "./App.css"
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000"
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? ""
 
-const metrics = [
-  { label: "Infra modules", value: "07", detail: "VPC, ECR, ECS, ALB e observabilidade" },
-  { label: "Pipeline stages", value: "06", detail: "Test, lint, build, push e deploy" },
-  { label: "Cloud focus", value: "AWS", detail: "Fargate, CloudWatch, OIDC e ALB" },
+const topMetrics = [
+  { label: "Availability", value: "99.98%", delta: "+0.12%", tone: "good" },
+  { label: "Latency P95", value: "184ms", delta: "-21ms", tone: "good" },
+  { label: "Error Rate", value: "0.18%", delta: "-0.05%", tone: "good" },
+  { label: "Deploys", value: "23", delta: "7d", tone: "neutral" },
 ]
 
-const highlights = [
-  "Terraform para provisionamento de infraestrutura",
-  "GitHub Actions com fluxo CI/CD completo",
-  "Containers com Docker e deploy em ECS Fargate",
+const serviceStatus = [
+  { name: "API Gateway", status: "Healthy", uptime: "14d 06h", load: "41%" },
+  { name: "ECS Service", status: "Healthy", uptime: "14d 06h", load: "67%" },
+  { name: "CI Runner", status: "Healthy", uptime: "6d 18h", load: "33%" },
+  { name: "Task Queue", status: "Degraded", uptime: "03h 11m", load: "89%" },
 ]
 
-const stackItems = ["Terraform", "AWS", "GitHub Actions", "Docker", "Flask", "React"]
-
-const architectureNodes = [
-  { step: "01", label: "Code", text: "Aplicação versionada para frontend, backend e infra." },
-  { step: "02", label: "Pipeline", text: "Lint, testes, build e validação de Terraform." },
-  { step: "03", label: "Cloud", text: "Imagem no ECR e deploy automatizado no ECS Fargate." },
+const incidentFeed = [
+  {
+    time: "09:14",
+    title: "CPU spike on worker pool",
+    detail: "Autoscaling absorbed the peak after new pipeline executions.",
+    severity: "warning",
+  },
+  {
+    time: "08:42",
+    title: "Terraform plan completed",
+    detail: "No destructive changes detected for production environment.",
+    severity: "info",
+  },
+  {
+    time: "07:58",
+    title: "ALB target recovered",
+    detail: "Health check returned to normal after container restart.",
+    severity: "good",
+  },
 ]
+
+const regionBars = [
+  { label: "us-east-1", value: 84 },
+  { label: "sa-east-1", value: 62 },
+  { label: "eu-west-1", value: 48 },
+  { label: "ap-south-1", value: 37 },
+]
+
+const sparkline = [42, 58, 46, 71, 54, 76, 66, 82, 61, 88, 73, 92]
 
 function App() {
   const [tasks, setTasks] = useState([])
@@ -63,125 +87,180 @@ function App() {
   }
 
   return (
-    <main className="page-shell">
-      <section className="hero-grid">
+    <main className="dashboard-shell">
+      <section className="hero-band">
         <div className="hero-copy">
-          <span className="eyebrow">Cloud • DevOps • Infrastructure as Code</span>
-          <h1>Portfólio de Infraestrutura com cara de produto e mentalidade de automação.</h1>
-          <p className="hero-text">
-            Uma interface criada para transformar um projeto técnico em uma peça
-            de portfólio mais memorável, com narrativa visual, stack bem exposta
-            e contexto claro para recrutadores e times de engenharia.
+          <span className="hero-badge">Observability Command Center</span>
+          <h1>Cloud monitoring dashboard com atmosfera de NOC e visual inspirado em Grafana.</h1>
+          <p>
+            Uma página para apresentar o projeto como se ele já estivesse em operação:
+            serviços monitorados, eventos recentes, saúde da stack e sinais de incidentes.
           </p>
-
-          <div className="hero-actions">
-            <a
-              className="primary-action"
-              href="https://github.com/FelipeAlMuniz"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Ver GitHub
-            </a>
-            <a
-              className="secondary-action"
-              href="https://www.linkedin.com/in/felipe-alves-muniz"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Ver LinkedIn
-            </a>
-          </div>
-
-          <ul className="highlight-list">
-            {highlights.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-
-          <div className="stack-strip">
-            {stackItems.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
         </div>
 
-        <aside className="hero-panel">
-          <div className="panel-label">Profile Card</div>
-          <h2>Felipe Alves Muniz</h2>
-          <p className="panel-role">Infrastructure Analyst • Cloud & AI DevOps Student</p>
-
-          <div className="metrics-grid">
-            {metrics.map((metric) => (
-              <article className="metric-card" key={metric.label}>
-                <span>{metric.label}</span>
-                <strong>{metric.value}</strong>
-                <small>{metric.detail}</small>
-              </article>
-            ))}
+        <div className="hero-summary">
+          <div className="summary-label">Current posture</div>
+          <strong>Stable with minor pressure on queue workers</strong>
+          <div className="summary-strip">
+            <span>Terraform</span>
+            <span>AWS</span>
+            <span>ECS</span>
+            <span>ALB</span>
+            <span>CI/CD</span>
           </div>
-
-          <div className="signal-bar">
-            <span>Readiness</span>
-            <div className="signal-track">
-              <div className="signal-fill" />
-            </div>
-            <strong>Portfolio Ready</strong>
-          </div>
-        </aside>
+        </div>
       </section>
 
-      <section className="content-grid">
-        <article className="story-card">
-          <div className="section-tag">Project Story</div>
-          <h2>DevOps Cloud Project</h2>
-          <p>
-            Aplicação de demonstração para exibir uma jornada completa: código,
-            containerização, validação automatizada e entrega contínua em cloud.
-          </p>
+      <section className="metrics-grid">
+        {topMetrics.map((metric) => (
+          <article className="metric-panel" key={metric.label}>
+            <span>{metric.label}</span>
+            <strong>{metric.value}</strong>
+            <small className={`delta ${metric.tone}`}>{metric.delta}</small>
+          </article>
+        ))}
+      </section>
 
-          <div className="timeline">
+      <section className="main-grid">
+        <article className="panel panel-large">
+          <div className="panel-head">
             <div>
-              <span>01</span>
-              <p>Provisionamento com Terraform para AWS.</p>
+              <span className="panel-tag">Traffic Insight</span>
+              <h2>Request volume and response profile</h2>
+            </div>
+            <div className="pill success">Live</div>
+          </div>
+
+          <div className="chart-surface">
+            <div className="chart-grid" />
+            <div className="sparkline">
+              {sparkline.map((point, index) => (
+                <span
+                  key={`${point}-${index}`}
+                  style={{ height: `${point}%` }}
+                  className="spark-bar"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="chart-footer">
+            <div>
+              <span>Peak throughput</span>
+              <strong>1.8k req/min</strong>
             </div>
             <div>
-              <span>02</span>
-              <p>Empacotamento da aplicação com Docker.</p>
+              <span>Container saturation</span>
+              <strong>67%</strong>
             </div>
             <div>
-              <span>03</span>
-              <p>Pipeline CI/CD com GitHub Actions e deploy automatizado.</p>
+              <span>Healthy targets</span>
+              <strong>4 / 4</strong>
             </div>
           </div>
         </article>
 
-        <article className="task-card-shell">
-          <div className="section-tag">Live Task Board</div>
-          <div className="task-header">
+        <article className="panel">
+          <div className="panel-head">
             <div>
-              <h2>DevOps Task Manager</h2>
-              <p>Use esta área para registrar entregas e ideias do projeto.</p>
+              <span className="panel-tag">Service Health</span>
+              <h2>Runtime status</h2>
             </div>
-            <div className="task-badge">{tasks.length} tasks</div>
+          </div>
+
+          <div className="service-list">
+            {serviceStatus.map((service) => (
+              <div className="service-row" key={service.name}>
+                <div>
+                  <strong>{service.name}</strong>
+                  <span>{service.uptime}</span>
+                </div>
+                <div className="service-meta">
+                  <span className={service.status === "Healthy" ? "good" : "warn"}>
+                    {service.status}
+                  </span>
+                  <small>{service.load}</small>
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="secondary-grid">
+        <article className="panel">
+          <div className="panel-head">
+            <div>
+              <span className="panel-tag">Regional Load</span>
+              <h2>Traffic distribution</h2>
+            </div>
+          </div>
+
+          <div className="bar-list">
+            {regionBars.map((region) => (
+              <div className="bar-row" key={region.label}>
+                <div className="bar-meta">
+                  <span>{region.label}</span>
+                  <strong>{region.value}%</strong>
+                </div>
+                <div className="bar-track">
+                  <div className="bar-fill" style={{ width: `${region.value}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="panel">
+          <div className="panel-head">
+            <div>
+              <span className="panel-tag">Incident Feed</span>
+              <h2>Recent signals</h2>
+            </div>
+          </div>
+
+          <div className="incident-list">
+            {incidentFeed.map((item) => (
+              <article className="incident-item" key={`${item.time}-${item.title}`}>
+                <div className={`incident-dot ${item.severity}`} />
+                <div>
+                  <div className="incident-topline">
+                    <strong>{item.title}</strong>
+                    <span>{item.time}</span>
+                  </div>
+                  <p>{item.detail}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="secondary-grid">
+        <article className="panel panel-tasks">
+          <div className="panel-head">
+            <div>
+              <span className="panel-tag">Ops Notes</span>
+              <h2>Runbook and follow-ups</h2>
+            </div>
+            <div className="pill">{tasks.length} items</div>
           </div>
 
           <div className="task-input">
             <input
-              placeholder="Ex.: Adicionar terraform plan no pull request"
+              placeholder="Ex.: revisar health check do worker queue"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
-
-            <button onClick={addTask}>Criar</button>
+            <button onClick={addTask}>Adicionar</button>
           </div>
 
           <div className="task-list">
-            {loading ? <p className="empty-state">Carregando tarefas...</p> : null}
+            {loading ? <p className="empty-state">Carregando anotações operacionais...</p> : null}
 
             {!loading && tasks.length === 0 ? (
               <p className="empty-state">
-                Nenhuma tarefa ainda. Crie a primeira para usar o dashboard como demo.
+                Nenhuma anotação ainda. Adicione itens para simular backlog de operação.
               </p>
             ) : null}
 
@@ -193,28 +272,30 @@ function App() {
             ))}
           </div>
         </article>
-      </section>
 
-      <section className="architecture-shell">
-        <div className="architecture-copy">
-          <span className="section-tag">Cloud Flow</span>
-          <h2>Uma esteira visual para reforçar a narrativa técnica do projeto.</h2>
-          <p>
-            Esta seção foi desenhada para dar mais impacto à apresentação do
-            stack, mostrando como código, pipeline e cloud se conectam de forma
-            simples e elegante.
-          </p>
-        </div>
+        <article className="panel panel-map">
+          <div className="panel-head">
+            <div>
+              <span className="panel-tag">Architecture Pulse</span>
+              <h2>Stack topology</h2>
+            </div>
+          </div>
 
-        <div className="architecture-grid">
-          {architectureNodes.map((node) => (
-            <article className="architecture-card" key={node.step}>
-              <span>{node.step}</span>
-              <h3>{node.label}</h3>
-              <p>{node.text}</p>
-            </article>
-          ))}
-        </div>
+          <div className="topology">
+            <div className="topology-node active">GitHub Actions</div>
+            <div className="topology-line" />
+            <div className="topology-row">
+              <div className="topology-node active">Amazon ECR</div>
+              <div className="topology-node active">Terraform Apply</div>
+            </div>
+            <div className="topology-line" />
+            <div className="topology-row">
+              <div className="topology-node active">ECS Fargate</div>
+              <div className="topology-node warning">Worker Queue</div>
+              <div className="topology-node active">ALB</div>
+            </div>
+          </div>
+        </article>
       </section>
     </main>
   )
